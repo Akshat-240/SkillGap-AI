@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillGap-AI | Custom Match</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .form-group { margin-bottom: 20px; }
+        textarea { width: 100%; height: 150px; padding: 10px; margin-top: 5px; }
+        input[type="file"] { margin-top: 5px; }
+        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; font-size: 16px; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🎓 SkillGap-AI</h1>
+    <p>Upload your resume and paste a job description to calculate your match score.</p>
+    
+    <form action="/analyze" method="POST" enctype="multipart/form-data">
+        
+        <div class="form-group">
+            <label for="resume"><b>1. Upload Resume (PDF):</b></label><br>
+            <input type="file" id="resume" name="resume" accept=".pdf" required>
+        </div>
+
+        <div class="form-group">
+            <label for="job_desc"><b>2. Paste Job Description:</b></label><br>
+            <textarea id="job_desc" name="job_desc" placeholder="Paste the target job requirements here..." required></textarea>
+        </div>
+
+        <button type="submit">Analyze Match</button>
+        
+    </form>
+</body>
+</html>

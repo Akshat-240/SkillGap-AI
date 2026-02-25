@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillGap-AI | Results</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .score { font-size: 36px; color: #28a745; font-weight: bold; }
+        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 5px; }
+        a { display: inline-block; margin-top: 20px; text-decoration: none; color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>SkillGap-AI Analysis Complete</h1>
+    
+    <div class="card">
+        <h2>Match Score: <span class="score">{{ score }}%</span></h2>
+    </div>
+
+    <div class="card">
+        <h3>Your Study List (Missing Skills):</h3>
+        {% if gap %}
+            <ul>
+            {% for skill in gap %}
+                <li>{{ skill }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>None! You are ready to apply.</p>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>Extra Skills You Have:</h3>
+        <p>{{ extra }}</p>
+    </div>
+
+    <a href="/">← Try Another Match</a>
+</body>
+</html>
