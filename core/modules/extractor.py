@@ -1,11 +1,13 @@
-import PyPDF2
+import pypdf
 import json
 import time
 
 PDF_DEBUG_LOG_PATH = r"c:\Users\aksha\Desktop\SG_AI\debug-aedf66.log"
 
 
-def _write_debug_log(hypothesis_id: str, message: str, data: dict, run_id: str = "initial"):
+def _write_debug_log(
+    hypothesis_id: str, message: str, data: dict, run_id: str = "initial"
+):
     # region agent log
     try:
         payload = {
@@ -35,7 +37,7 @@ def extract_text_from_pdf(file_path):  # Function to extract text from a PDF fil
     text = ""
     try:
         with open(file_path, "rb") as file:  # read as binary
-            reader = PyPDF2.PdfReader(file)
+            reader = pypdf.PdfReader(file)
 
             for page_index, page in enumerate(reader.pages):
                 page_text = page.extract_text()
@@ -72,4 +74,3 @@ def extract_text_from_pdf(file_path):  # Function to extract text from a PDF fil
             data={"error": str(e)},
         )
         return f"Error processing PDF: {str(e)}"
-

@@ -1,0 +1,158 @@
+app.py:1:24: E203 whitespace before ','
+app.py:1:42: E203 whitespace before ','
+app.py:7:1: E402 module level import not at top of file
+app.py:8:1: E402 module level import not at top of file
+app.py:15:1: E302 expected 2 blank lines, found 1
+app.py:15:15: E203 whitespace before ','
+app.py:17:1: E304 blank lines found after function decorator
+app.py:18:41: W291 trailing whitespace
+app.py:20:1: E302 expected 2 blank lines, found 1
+app.py:20:22: E203 whitespace before ','
+app.py:22:7: E271 multiple spaces after keyword
+app.py:24:1: W293 blank line contains whitespace
+app.py:28:1: W293 blank line contains whitespace
+app.py:38:10: E203 whitespace before ','
+app.py:38:16: E203 whitespace before ','
+app.py:40:76: E203 whitespace before ','
+app.py:40:80: E501 line too long (135 > 79 characters)
+app.py:40:103: E203 whitespace before ','
+app.py:42:1: E305 expected 2 blank lines after class or function definition, found 1
+core/modules\cleaner.py:3:1: E302 expected 2 blank lines, found 1
+core/modules\cleaner.py:8:1: E302 expected 2 blank lines, found 1
+core/modules\cleaner.py:15:1: W293 blank line contains whitespace
+core/modules\cleaner.py:17:1: W293 blank line contains whitespace
+core/modules\cleaner.py:18:29: E203 whitespace before ','
+core/modules\cleaner.py:19:1: W293 blank line contains whitespace
+core/modules\cleaner.py:20:29: E203 whitespace before ','
+core/modules\cleaner.py:22:30: E203 whitespace before ','
+core/modules\cleaner.py:23:1: W293 blank line contains whitespace
+core/modules\cleaner.py:24:16: W292 no newline at end of file
+core/modules\database_manager.py:8:80: E501 line too long (92 > 79 characters)
+core/modules\database_manager.py:52:80: E501 line too long (80 > 79 characters)
+core/modules\database_manager.py:84:80: E501 line too long (83 > 79 characters)
+core/modules\database_manager.py:87:80: E501 line too long (86 > 79 characters)
+core/modules\database_manager.py:91:80: E501 line too long (83 > 79 characters)
+core/modules\database_manager.py:126:80: E501 line too long (82 > 79 characters)
+core/modules\database_manager.py:127:80: E501 line too long (96 > 79 characters)
+core/modules\database_manager.py:131:11: W292 no newline at end of file
+core/modules\extractor.py:8:80: E501 line too long (92 > 79 characters)
+core/modules\extractor.py:29:80: E501 line too long (81 > 79 characters)
+core/modules\extractor.py:45:80: E501 line too long (81 > 79 characters)
+core/modules\extractor.py:75:1: W391 blank line at end of file
+core/modules\matcher.py:5:35: E203 whitespace before ','
+core/modules\matcher.py:15:74: E203 whitespace before ','
+core/modules\matcher.py:15:80: E501 line too long (92 > 79 characters)
+core/modules\matcher.py:18:80: E501 line too long (84 > 79 characters)
+core/modules\matcher.py:33:80: E501 line too long (82 > 79 characters)
+core/modules\matcher.py:33:83: W291 trailing whitespace
+core/modules\matcher.py:34:80: E501 line too long (84 > 79 characters)
+core/modules\matcher.py:35:1: W293 blank line contains whitespace
+core/modules\matcher.py:37:80: E501 line too long (81 > 79 characters)
+core/modules\matcher.py:37:82: W291 trailing whitespace
+core/modules\matcher.py:39:1: W293 blank line contains whitespace
+core/modules\matcher.py:41:80: E501 line too long (82 > 79 characters)
+core/modules\matcher.py:41:83: W291 trailing whitespace
+core/modules\matcher.py:43:1: W293 blank line contains whitespace
+core/modules\matcher.py:45:79: W291 trailing whitespace
+core/modules\matcher.py:46:80: E501 line too long (80 > 79 characters)
+core/modules\matcher.py:47:1: W293 blank line contains whitespace
+core/modules\matcher.py:49:73: W291 trailing whitespace
+core/modules\matcher.py:51:1: W293 blank line contains whitespace
+core/modules\matcher.py:53:76: W291 trailing whitespace
+core/modules\matcher.py:54:75: W291 trailing whitespace
+core/modules\matcher.py:55:76: W291 trailing whitespace
+core/modules\matcher.py:57:1: W293 blank line contains whitespace
+core/modules\matcher.py:62:1: E302 expected 2 blank lines, found 1
+core/modules\matcher.py:64:80: E501 line too long (110 > 79 characters)
+core/modules\matcher.py:68:80: E501 line too long (95 > 79 characters)
+core/modules\matcher.py:75:1: W293 blank line contains whitespace
+core/modules\matcher.py:78:1: W293 blank line contains whitespace
+core/modules\matcher.py:81:1: W293 blank line contains whitespace
+core/modules\matcher.py:86:1: W293 blank line contains whitespace
+core/modules\matcher.py:90:1: E302 expected 2 blank lines, found 1
+core/modules\matcher.py:98:11: F541 f-string is missing placeholders
+core/modules\matcher.py:99:11: F541 f-string is missing placeholders
+core/modules\matcher.py:100:11: F541 f-string is missing placeholders
+core/modules\matcher.py:101:1: W293 blank line contains whitespace
+core/modules\matcher.py:108:11: F541 f-string is missing placeholders
+core/modules\matcher.py:111:80: E501 line too long (84 > 79 characters)
+core/modules\matcher.py:114:1: W293 blank line contains whitespace
+core/modules\matcher.py:118:15: F541 f-string is missing placeholders
+core/modules\matcher.py:120:15: F541 f-string is missing placeholders
+core/modules\matcher.py:121:11: F541 f-string is missing placeholders
+core/modules\matcher.py:123:1: E265 block comment should start with '# '
+core/modules\matcher.py:126:1: W391 blank line at end of file
+core/modules\tempCodeRunnerFile.py:1:1: F821 undefined name 'resume_set'
+core/modules\tempCodeRunnerFile.py:1:11: W292 no newline at end of file
+tests/add_test_job.py:12:80: E501 line too long (83 > 79 characters)
+tests/add_test_job.py:16:70: W291 trailing whitespace
+tests/add_test_job.py:25:36: W292 no newline at end of file
+tests/re2.py:7:16: W292 no newline at end of file
+tests/tempCodeRunnerFile.py:1:1: F401 'PyPDF2' imported but unused
+tests/tempCodeRunnerFile.py:2:1: F401 'os' imported but unused
+tests/tempCodeRunnerFile.py:2:10: W292 no newline at end of file
+tests/test_custom_match.py:6:1: F401 'core.modules.matcher.get_matching_data' imported but unused
+tests/test_custom_match.py:6:1: E402 module level import not at top of file
+tests/test_custom_match.py:6:80: E501 line too long (88 > 79 characters)
+tests/test_custom_match.py:8:1: E402 module level import not at top of file
+tests/test_custom_match.py:10:1: E302 expected 2 blank lines, found 1
+tests/test_custom_match.py:11:5: E265 block comment should start with '# '
+tests/test_custom_match.py:20:10: E203 whitespace before ','
+tests/test_custom_match.py:20:16: E203 whitespace before ','
+tests/test_custom_match.py:22:9: E116 unexpected indentation (comment)
+tests/test_custom_match.py:23:11: F541 f-string is missing placeholders
+tests/test_custom_match.py:24:11: F541 f-string is missing placeholders
+tests/test_custom_match.py:25:11: F541 f-string is missing placeholders
+tests/test_custom_match.py:27:1: W293 blank line contains whitespace
+tests/test_custom_match.py:29:13: E117 over-indented
+tests/test_custom_match.py:30:19: F541 f-string is missing placeholders
+tests/test_custom_match.py:30:80: E501 line too long (82 > 79 characters)
+tests/test_custom_match.py:32:13: E117 over-indented
+tests/test_custom_match.py:32:19: F541 f-string is missing placeholders
+tests/test_custom_match.py:33:1: W293 blank line contains whitespace
+tests/test_custom_match.py:35:11: F541 f-string is missing placeholders
+tests/test_custom_match.py:40:1: E303 too many blank lines (4)
+tests/test_custom_match.py:42:1: E305 expected 2 blank lines after class or function definition, found 4
+tests/test_custom_match.py:46:56: W291 trailing whitespace
+tests/test_custom_match.py:47:69: W291 trailing whitespace
+tests/test_custom_match.py:48:46: W291 trailing whitespace
+tests/test_custom_match.py:53:54: W292 no newline at end of file
+tests/test_extractor.py:5:1: E302 expected 2 blank lines, found 1
+tests/test_extractor.py:5:38: W291 trailing whitespace
+tests/test_extractor.py:8:44: W291 trailing whitespace
+tests/test_extractor.py:10:1: W293 blank line contains whitespace
+tests/test_extractor.py:11:38: W291 trailing whitespace
+tests/test_extractor.py:12:48: W291 trailing whitespace
+tests/test_extractor.py:13:30: W291 trailing whitespace
+tests/test_extractor.py:14:45: W291 trailing whitespace
+tests/test_extractor.py:16:29: W291 trailing whitespace
+tests/test_extractor.py:18:1: W293 blank line contains whitespace
+tests/test_extractor.py:20:1: W293 blank line contains whitespace
+tests/test_extractor.py:28:1: E303 too many blank lines (3)
+tests/test_extractor.py:29:1: E305 expected 2 blank lines after class or function definition, found 3
+tests/test_extractor.py:30:5: F811 redefinition of unused 'os' from line 2
+tests/test_extractor.py:31:1: W293 blank line contains whitespace
+tests/test_extractor.py:34:1: W293 blank line contains whitespace
+tests/test_extractor.py:36:1: W293 blank line contains whitespace
+tests/test_extractor.py:40:1: W293 blank line contains whitespace
+tests/test_extractor.py:40:5: W292 no newline at end of file
+tests/test_pdf_match.py:7:1: F401 'core.modules.matcher.get_matching_data' imported but unused
+tests/test_pdf_match.py:7:1: E402 module level import not at top of file
+tests/test_pdf_match.py:7:80: E501 line too long (88 > 79 characters)
+tests/test_pdf_match.py:9:1: E402 module level import not at top of file
+tests/test_pdf_match.py:11:1: E302 expected 2 blank lines, found 1
+tests/test_pdf_match.py:12:5: E265 block comment should start with '# '
+tests/test_pdf_match.py:28:80: E501 line too long (84 > 79 characters)
+tests/test_pdf_match.py:36:1: W293 blank line contains whitespace
+tests/test_pdf_match.py:40:14: E203 whitespace before ','
+tests/test_pdf_match.py:40:20: E203 whitespace before ','
+tests/test_pdf_match.py:43:15: F541 f-string is missing placeholders
+tests/test_pdf_match.py:44:15: F541 f-string is missing placeholders
+tests/test_pdf_match.py:45:15: F541 f-string is missing placeholders
+tests/test_pdf_match.py:48:1: W293 blank line contains whitespace
+tests/test_pdf_match.py:51:19: F541 f-string is missing placeholders
+tests/test_pdf_match.py:51:80: E501 line too long (82 > 79 characters)
+tests/test_pdf_match.py:53:19: F541 f-string is missing placeholders
+tests/test_pdf_match.py:54:1: W293 blank line contains whitespace
+tests/test_pdf_match.py:56:15: F541 f-string is missing placeholders
+tests/test_pdf_match.py:63:46: W292 no newline at end of file

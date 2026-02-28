@@ -1,0 +1,480 @@
+/* Light Theme Variables */
+:root {
+  --brand-blue: #235ef2;
+  /* Primary button & progress bar color */
+  --brand-light: #e6f0ff;
+  /* Light background for primary text blocks */
+  --brand-success: #1fae62;
+  /* Green checkmarks */
+  --brand-warning: #f17b3c;
+  /* Orange warnings */
+
+  --bg-color: #e0f2fe;
+  /* Core page background color (soft light blue/teal gradient base) */
+  --card-bg: #ffffff;
+  /* White blocks */
+  --sidebar-text: #4b5563;
+  /* Gray sidebar text */
+  --sidebar-active: #235ef2;
+  /* Active sidebar link */
+  --text-main: #1f2937;
+  --text-muted: #6b7280;
+  --border-light: #e5e7eb;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: linear-gradient(135deg, #e0f2fe 0%, #d1fae5 100%);
+  color: var(--text-main);
+  margin: 0;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ========================================= */
+/* SIDEBAR                                   */
+/* ========================================= */
+aside {
+  width: 200px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 20px;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.03);
+  z-index: 10;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 50px;
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.logo-icon {
+  width: 25px;
+  height: 25px;
+  background: linear-gradient(135deg, #1fae62, #235ef2);
+  border-radius: 5px;
+}
+
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: var(--sidebar-text);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  gap: 6px;
+}
+
+.nav-item i {
+  font-size: 22px;
+}
+
+.nav-item.active {
+  background-color: var(--brand-light);
+  color: var(--brand-blue);
+}
+
+.nav-item:hover:not(.active) {
+  background-color: #f3f4f6;
+}
+
+/* ========================================= */
+/* MAIN CONTENT                              */
+/* ========================================= */
+main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 30px 40px;
+  overflow-y: auto;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+header h1 {
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+}
+
+header h1 strong {
+  font-weight: 700;
+}
+
+.top-icons {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-muted);
+  cursor: pointer;
+  background-color: #ffffff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #ccc;
+  overflow: hidden;
+}
+
+.profile-pic img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ========================================= */
+/* PROFILE STRENGTH BAR                      */
+/* ========================================= */
+.strength-card {
+  background-color: var(--card-bg);
+  padding: 24px 30px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+}
+
+.strength-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.progress-track {
+  height: 14px;
+  background-color: #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+}
+
+.progress-fill {
+  background-color: var(--brand-blue);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease-in-out;
+}
+
+.progress-gap {
+  background-color: var(--brand-warning);
+  height: 100%;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.strength-warning {
+  display: flex;
+  justify-content: flex-end;
+  font-size: 12px;
+  font-weight: 600;
+  margin-top: 8px;
+  color: var(--text-main);
+  align-items: center;
+  gap: 6px;
+}
+
+.warning-dot {
+  color: var(--brand-warning);
+  font-size: 14px;
+}
+
+/* ========================================= */
+/* GRID LAYOUT FOR BOTTOM CARDS              */
+/* ========================================= */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 25px;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+}
+
+.card h3 {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* --- Card 1: Resume Analysis --- */
+.upload-btn {
+  background-color: var(--brand-blue);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  margin-bottom: 25px;
+}
+
+.score-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.score-block {
+  text-align: center;
+}
+
+.score-block .label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.score-block .val {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.score-block .val.green {
+  color: var(--brand-success);
+}
+
+.score-block .val.red {
+  color: #ef4444;
+}
+
+.feedback-bubble {
+  background-color: var(--brand-light);
+  padding: 15px;
+  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #1e3a8a;
+  margin-bottom: 25px;
+}
+
+.matches-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.match-ring {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  border: 4px solid #e5e7eb;
+}
+
+.match-ring.active-1 {
+  border-color: #1fae62;
+  border-right-color: #e5e7eb;
+}
+
+.match-ring.active-2 {
+  border-color: var(--brand-blue);
+  border-bottom-color: #e5e7eb;
+}
+
+.match-ring.active-3 {
+  border-color: #94a3b8;
+}
+
+.match-label {
+  text-align: center;
+  font-size: 11px;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* --- Card 2: Skills Gap Matrix --- */
+select.job-dropdown {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: white;
+  margin-bottom: 20px;
+  font-weight: 600;
+  outline: none;
+}
+
+.matrix-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.matrix-table th {
+  text-align: left;
+  padding-bottom: 10px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-light);
+  font-weight: 600;
+}
+
+.matrix-table td {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.matrix-table tr:last-child td {
+  border-bottom: none;
+}
+
+.status-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.status-icon.success {
+  color: var(--brand-success);
+}
+
+.status-icon.warning {
+  color: var(--brand-warning);
+}
+
+/* --- Card 3: Recommendations --- */
+.rec-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow-y: auto;
+}
+
+.rec-item {
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.rec-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+  font-size: 11px;
+}
+
+.rec-logo.coursera {
+  background-color: #0056D2;
+}
+
+.rec-logo.edx {
+  background-color: #B4282B;
+  font-size: 16px;
+  font-style: italic;
+}
+
+.rec-logo.udemy {
+  background-color: #A435F0;
+}
+
+.rec-content {
+  flex: 1;
+}
+
+.rec-content h4 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-main);
+}
+
+.rec-progress {
+  width: 100%;
+  height: 4px;
+  background: #e5e7eb;
+  border-radius: 2px;
+  position: relative;
+}
+
+.rec-progress-fill {
+  height: 100%;
+  background: var(--brand-blue);
+  border-radius: 2px;
+}
+
+.rec-percent {
+  position: absolute;
+  right: 0;
+  top: -16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.enroll-btn {
+  background-color: var(--brand-blue);
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}

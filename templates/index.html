@@ -1,36 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillGap-AI | Custom Match</title>
+    <title>SkillGap-AI | Upload</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
-        .form-group { margin-bottom: 20px; }
-        textarea { width: 100%; height: 150px; padding: 10px; margin-top: 5px; }
-        input[type="file"] { margin-top: 5px; }
-        button { padding: 10px 20px; background-color: #007bff; color: white; border: none; cursor: pointer; font-size: 16px; }
-        button:hover { background-color: #0056b3; }
+        :root {
+            --brand-indigo: #6366f1;
+            --light-bg: #f8fafc;
+            --slate-dark: #1e293b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-bg);
+            color: var(--slate-dark);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 36px;
+            color: var(--brand-indigo);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #64748b;
+            margin-bottom: 40px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            margin-top: 8px;
+            box-sizing: border-box;
+        }
+
+        button {
+            width: 100%;
+            padding: 18px;
+            background: var(--brand-indigo);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
     </style>
 </head>
+
 <body>
-    <h1>🎓 SkillGap-AI</h1>
-    <p>Upload your resume and paste a job description to calculate your match score.</p>
-    
-    <form action="/analyze" method="POST" enctype="multipart/form-data">
-        
-        <div class="form-group">
-            <label for="resume"><b>1. Upload Resume (PDF):</b></label><br>
-            <input type="file" id="resume" name="resume" accept=".pdf" required>
-        </div>
+    <div class="container">
+        <div class="card">
+            <h1>🎓 SkillGap-AI</h1>
+            <p class="subtitle">Upload your resume and the job requirements to find your study list.</p>
+            <form action="/analyze" method="POST" enctype="multipart/form-data">
+                <label><b>1. Target Job Title</b></label>
+                <input type="text" name="job_title" placeholder="e.g. Data Scientist / Frontend Developer" required
+                    style="width: 100%; padding: 15px; border: 1px solid #e2e8f0; border-radius: 12px; margin-top: 8px; margin-bottom: 20px; box-sizing: border-box;">
 
-        <div class="form-group">
-            <label for="job_desc"><b>2. Paste Job Description:</b></label><br>
-            <textarea id="job_desc" name="job_desc" placeholder="Paste the target job requirements here..." required></textarea>
-        </div>
+                <label><b>2. Your Resume (PDF)</b></label><br>
+                <input type="file" name="resume" accept=".pdf" required style="margin: 15px 0 30px 0;"><br>
 
-        <button type="submit">Analyze Match</button>
-        
-    </form>
+                <label><b>3. Job Description</b></label>
+                <textarea name="job_desc" placeholder="Paste the job requirements here..." required></textarea>
+                <button type="submit">Analyze Match & Find Gaps</button>
+            </form>
+        </div>
+    </div>
 </body>
+
 </html>

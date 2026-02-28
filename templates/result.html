@@ -1,41 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SkillGap-AI | Results</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
-        .score { font-size: 36px; color: #28a745; font-weight: bold; }
-        .card { border: 1px solid #ddd; padding: 15px; margin-top: 15px; border-radius: 5px; }
-        a { display: inline-block; margin-top: 20px; text-decoration: none; color: #007bff; }
-    </style>
+    <title>SkillGap-AI Dashboard</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for standard icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Link to the newly created custom stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+
 <body>
-    <h1>SkillGap-AI Analysis Complete</h1>
-    
-    <div class="card">
-        <h2>Match Score: <span class="score">{{ score }}%</span></h2>
-    </div>
 
-    <div class="card">
-        <h3>Your Study List (Missing Skills):</h3>
-        {% if gap %}
-            <ul>
-            {% for skill in gap %}
-                <li>{{ skill }}</li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>None! You are ready to apply.</p>
+    <!-- SIDEBAR -->
+    <aside>
+        <div class="logo-container">
+            <div class="logo-icon"></div>
+            <span>SkillGap-AI</span>
+        </div>
+
+        <div class="nav-menu">
+            <div class="nav-item active">
+                <i class="fa-solid fa-table-cells-large"></i>
+                Dashboard
+            </div>
+            <div class="nav-item">
+                <i class="fa-regular fa-file-lines"></i>
+                My Resumes
+            </div>
+            <div class="nav-item">
+                <i class="fa-solid fa-graduation-cap"></i>
+                Learning Paths
+            </div>
+            <div class="nav-item flex-end" style="margin-top:auto">
+                <i class="fa-solid fa-gears"></i>
+                Settings
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN VIEW -->
+    <main>
+        <header>
+            <h1>Hi <strong>{{ user_name|capitalize }}</strong>! Ready to close the gap?</h1>
+            <div class="top-icons">
+                <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
+                <div class="profile-pic">
+                    <img src="https://ui-avatars.com/api/?name={{ user_name }}&background=235ef2&color=fff"
+                        alt="Profile">
+                </div>
+            </div>
+        </header>
+
+        <!-- Profile Strength -->
+        <div class="strength-card">
+            <div class="strength-header">
+                <span>Profile Strength <i class="fa-regular fa-circle-question"
+                        style="color:#94a3b8; font-weight:400; font-size:14px; margin-left:5px"></i></span>
+                <span style="font-size:18px;">{{ score }}%</span>
+            </div>
+            <div class="progress-track" title="Resume Quality & Match Score">
+                <div class="progress-fill" style="width: {{ score }}%;"></div>
+                <div class="progress-gap" style="width: {{ 100 - score }}%;"></div>
+            </div>
+            {% if score < 80 %} <div class="strength-warning">
+                <i class="fa-solid fa-circle-exclamation warning-dot"></i>
+                Resume Optimization Needed.
+        </div>
         {% endif %}
-    </div>
+        </div>
 
-    <div class="card">
-        <h3>Extra Skills You Have:</h3>
-        <p>{{ extra }}</p>
-    </div>
+        <!-- 3-Col Layout -->
+        <div class="dashboard-grid">
 
-    <a href="/">← Try Another Match</a>
+            <!-- COl 1: Resume Analysis -->
+            <div class="card">
+                <h3>Resume Analysis</h3>
+                <button class="upload-btn" onclick="window.location.href='/'">
+                    <i class="fa-solid fa-upload"></i> Upload New Resume (PDF)
+                </button>
+
+                <div class="score-row">
+                    <div class="score-block">
+                        <div class="label">Overall score</div>
+                        <!-- Just a mock rating system logic -->
+                        <div class="val {% if score >= 80 %}green{% else %}red{% endif %}">{{ "%.1f"|format(score / 10)
+                            }}/10</div>
+                    </div>
+                    <div class="score-block">
+                        <div class="label">Skills matched:</div>
+                        <!-- Rough estimate to show accurate dynamic numbers -->
+                        {% set total_matched = ((job_skills|length) - (gap|length))|default(0, true) %}
+                        {% set total_required = job_skills|length|default(1, true) %}
+                        <div class="val green"><span style="color:#1fae62">{{ total_matched }}</span>/{{ total_required
+                            }}</div>
+                    </div>
+                    <div class="score-block">
+                        <div class="label">Missing:</div>
+                        <div class="val red">{{ gap|length }}</div>
+                    </div>
+                </div>
+
+                <div class="feedback-bubble">
+                    Your backend development skills are strong; {% if gap %}<b>{{ gap|join(', ') }}</b> could
+                    be enhanced.{% else %}You're a perfect match!{% endif %}
+                </div>
+
+                <div style="font-weight: 700; font-size: 14px; margin-bottom:10px;">Matches</div>
+                <div class="matches-grid">
+                    {% set display_matches = [] %}
+                    {% for skill in resume_skills %}
+                    {% if skill in job_skills %}
+                    {% set _ = display_matches.append(skill) %}
+                    {% endif %}
+                    {% endfor %}
+
+                    {% for db_skill in display_matches[:3] %}
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <div class="match-ring active-1"><i class="fa-solid fa-check" style="color:#1fae62"></i></div>
+                        <div class="match-label">{{ db_skill|capitalize }}</div>
+                    </div>
+                    {% endfor %}
+
+                    {% if display_matches|length == 0 %}
+                    <div style="color:var(--text-muted); font-size:13px; text-align:center; width:100%;">No exact
+                        matches found</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- COL 2: Skills Gap Matrix -->
+            <div class="card">
+                <h3>Skills Gap Matrix</h3>
+                <div class="job-dropdown"
+                    style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text-main); font-weight: 600; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; margin-bottom: 20px;">
+                    {{ job_title|title }}
+                    <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 12px;"></i>
+                </div>
+
+                <div class="matrix-container">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th>Required Skills</th>
+                                <th>Your Skills</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Loop missing first -->
+                            {% for missing_skill in gap %}
+                            <tr>
+                                <td>{{ missing_skill|capitalize }}</td>
+                                <td class="status-cell">
+                                    <i class="fa-solid fa-circle-exclamation status-icon warning"></i>
+                                    Missing
+                                </td>
+                            </tr>
+                            {% endfor %}
+
+                            <!-- Loop some extras -->
+                            {% for have_skill in extra %}
+                            <tr>
+                                <td>{{ have_skill|capitalize }}</td>
+                                <td class="status-cell">
+                                    <i class="fa-solid fa-circle-check status-icon success"></i>
+                                    {{ have_skill|capitalize }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+
+
+        </div> <!-- end dashboard grid -->
+    </main>
+
 </body>
+
 </html>
