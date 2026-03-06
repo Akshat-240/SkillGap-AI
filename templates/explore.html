@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillGap-AI | Explore Roles</title>
+    <!-- Google Fonts for Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for standard icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container {
+            width: 100%;
+            max-width: 700px;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 0 auto;
+            margin-top: 50px;
+        }
+
+        .card-explore {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 36px;
+            color: var(--brand-blue);
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        button.btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: var(--brand-blue);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 18px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: opacity 0.2s;
+        }
+
+        button.btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        label b {
+            color: var(--text-main);
+        }
+    </style>
+    <script>
+        // Load dark mode preference
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+        function initTheme() {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.body.classList.add('dark-theme');
+            }
+        }
+    </script>
+</head>
+
+<body onload="initTheme()">
+    <!-- SIDEBAR -->
+    <aside>
+        <div class="logo-container">
+            <div class="logo-icon"></div>
+            <span>SkillGap-AI</span>
+        </div>
+
+        <div class="nav-menu">
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <div class="nav-item">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    Dashboard
+                </div>
+            </a>
+            <a href="/explore" style="text-decoration: none; color: inherit;">
+                <div class="nav-item active">
+                    <i class="fa-solid fa-briefcase"></i>
+                    Explore Roles
+                </div>
+            </a>
+            <div class="nav-item">
+                <i class="fa-solid fa-graduation-cap"></i>
+                Learning Paths
+            </div>
+            <div class="nav-item flex-end" style="margin-top:auto">
+                <i class="fa-solid fa-gears"></i>
+                Settings
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <div class="container">
+            <div class="card-explore">
+                <h1>Explore Job Profiles</h1>
+                <p class="subtitle">Analyze your resume against predefined job profiles from our database.</p>
+                <form action="/analyze_predefined" method="POST" enctype="multipart/form-data">
+                    <label><b>1. Select Predefined Job Profile</b></label>
+                    <select name="job_id" required
+                        style="width: 100%; padding: 15px; border: 1px solid var(--border-light); background: var(--card-bg); color: var(--text-main); border-radius: 12px; margin-top: 8px; margin-bottom: 20px; box-sizing: border-box;">
+                        {% for job in jobs %}
+                        <option value="{{ job.id }}">{{ job.title }} ({{ job.company }})</option>
+                        {% endfor %}
+                        {% if jobs|length == 0 %}
+                        <option value="" disabled>No jobs available in DB</option>
+                        {% endif %}
+                    </select>
+
+                    <label><b>2. Role Type Weighting</b></label>
+                    <select name="role_type"
+                        style="width: 100%; padding: 15px; border: 1px solid var(--border-light); background: var(--card-bg); color: var(--text-main); border-radius: 12px; margin-top: 8px; margin-bottom: 20px; box-sizing: border-box;">
+                        <option value="technical">Technical Role (80% Hard / 20% Soft)</option>
+                        <option value="management">Management Role (60% Hard / 40% Soft)</option>
+                    </select>
+
+                    <label><b>3. Your Resume (PDF)</b></label><br>
+                    <input type="file" name="resume" accept=".pdf" required
+                        style="margin: 15px 0 30px 0; color: var(--text-main);"><br>
+
+                    <button type="submit" class="btn-primary">Analyze Match</button>
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+
+</html>

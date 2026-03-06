@@ -14,9 +14,18 @@
 
     <!-- Link to the newly created custom stylesheet -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        // Load dark mode preference before body renders to prevent flashing
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-theme');
+        }
+    </script>
 </head>
 
-<body>
+<!-- We apply dark-theme to body if preferred -->
+
+<body onload="initTheme()">
 
     <!-- SIDEBAR -->
     <aside>
@@ -26,14 +35,18 @@
         </div>
 
         <div class="nav-menu">
-            <div class="nav-item active">
-                <i class="fa-solid fa-table-cells-large"></i>
-                Dashboard
-            </div>
-            <div class="nav-item">
-                <i class="fa-regular fa-file-lines"></i>
-                My Resumes
-            </div>
+            <a href="/" style="text-decoration: none; color: inherit;">
+                <div class="nav-item active">
+                    <i class="fa-solid fa-table-cells-large"></i>
+                    Dashboard
+                </div>
+            </a>
+            <a href="/explore" style="text-decoration: none; color: inherit;">
+                <div class="nav-item">
+                    <i class="fa-solid fa-briefcase"></i>
+                    Explore Roles
+                </div>
+            </a>
             <div class="nav-item">
                 <i class="fa-solid fa-graduation-cap"></i>
                 Learning Paths
@@ -50,6 +63,13 @@
         <header>
             <h1>Hi <strong>{{ user_name|capitalize }}</strong>! Ready to close the gap?</h1>
             <div class="top-icons">
+                <button class="icon-btn" onclick="toggleDarkMode()" title="Toggle Dark Mode" id="theme-toggle">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="icon-btn" onclick="exportPDF()" title="Download PDF Report"
+                    style="width: auto; padding: 0 15px; border-radius: 20px; font-weight: 600; font-size: 13px; color: var(--brand-blue); border-color: var(--brand-blue);">
+                    <i class="fa-solid fa-file-pdf" style="margin-right: 6px;"></i> Export PDF
+                </button>
                 <button class="icon-btn"><i class="fa-regular fa-bell"></i></button>
                 <div class="profile-pic">
                     <img src="https://ui-avatars.com/api/?name={{ user_name }}&background=235ef2&color=fff"
@@ -96,92 +116,468 @@
                     <div class="score-block">
                         <div class="label">Skills matched:</div>
                         <!-- Rough estimate to show accurate dynamic numbers -->
-                        {% set total_matched = ((job_skills|length) - (gap|length))|default(0, true) %}
-                        {% set total_required = job_skills|length|default(1, true) %}
+                        {% set total_matched = ((job_hard|length) + (job_soft|length) - raw_hard_gap_len -
+                        raw_soft_gap_len)|default(0, true) %}
+                        {% set total_required = ((job_hard|length) + (job_soft|length))|default(1, true) %}
                         <div class="val green"><span style="color:#1fae62">{{ total_matched }}</span>/{{ total_required
                             }}</div>
                     </div>
                     <div class="score-block">
                         <div class="label">Missing:</div>
-                        <div class="val red">{{ gap|length }}</div>
+                        <div class="val red">{{ raw_hard_gap_len + raw_soft_gap_len }}</div>
                     </div>
                 </div>
 
                 <div class="feedback-bubble">
-                    Your backend development skills are strong; {% if gap %}<b>{{ gap|join(', ') }}</b> could
+                    Your background is strong; {% if aug_hard or aug_soft %}<b>{{ (aug_hard +
+                        aug_soft)|map(attribute='skill')|join(', ')|title }}</b>
+                    could
                     be enhanced.{% else %}You're a perfect match!{% endif %}
                 </div>
 
-                <div style="font-weight: 700; font-size: 14px; margin-bottom:10px;">Matches</div>
-                <div class="matches-grid">
-                    {% set display_matches = [] %}
-                    {% for skill in resume_skills %}
-                    {% if skill in job_skills %}
-                    {% set _ = display_matches.append(skill) %}
+                <div style="font-weight: 700; font-size: 14px; margin-bottom:10px;">Technical Matches</div>
+                <div class="matches-grid" style="justify-content: center; gap: 35px;">
+                    {% set display_hard = [] %}
+                    {% for skill in resume_hard %}
+                    {% if skill in job_hard %}
+                    {% set _ = display_hard.append(skill) %}
                     {% endif %}
                     {% endfor %}
 
-                    {% for db_skill in display_matches[:3] %}
+                    {% for db_skill in display_hard[:3] %}
                     <div style="display:flex; flex-direction:column; align-items:center;">
                         <div class="match-ring active-1"><i class="fa-solid fa-check" style="color:#1fae62"></i></div>
                         <div class="match-label">{{ db_skill|capitalize }}</div>
                     </div>
                     {% endfor %}
 
-                    {% if display_matches|length == 0 %}
+                    {% if display_hard|length == 0 %}
                     <div style="color:var(--text-muted); font-size:13px; text-align:center; width:100%;">No exact
-                        matches found</div>
+                        technical matches</div>
+                    {% endif %}
+                </div>
+
+                <div style="font-weight: 700; font-size: 14px; margin-top:20px; margin-bottom:10px;">Soft Skill Matches
+                </div>
+                <div class="matches-grid" style="justify-content: center; gap: 35px;">
+                    {% set display_soft = [] %}
+                    {% for skill in resume_soft %}
+                    {% if skill in job_soft %}
+                    {% set _ = display_soft.append(skill) %}
+                    {% endif %}
+                    {% endfor %}
+
+                    {% for db_skill in display_soft[:3] %}
+                    <div style="display:flex; flex-direction:column; align-items:center;">
+                        <div class="match-ring active-1" style="border-color:#3b82f6;"><i class="fa-solid fa-check"
+                                style="color:#3b82f6"></i></div>
+                        <div class="match-label">{{ db_skill|title }}</div>
+                    </div>
+                    {% endfor %}
+
+                    {% if display_soft|length == 0 %}
+                    <div style="color:var(--text-muted); font-size:13px; text-align:center; width:100%;">No exact soft
+                        skill matches</div>
                     {% endif %}
                 </div>
             </div>
 
             <!-- COL 2: Skills Gap Matrix -->
-            <div class="card">
-                <h3>Skills Gap Matrix</h3>
-                <div class="job-dropdown"
-                    style="padding: 10px 14px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text-main); font-weight: 600; display: flex; justify-content: space-between; align-items: center; background: #f8fafc; margin-bottom: 20px;">
-                    {{ job_title|title }}
-                    <i class="fa-solid fa-chevron-down" style="color: var(--text-muted); font-size: 12px;"></i>
+            <div class="card" style="display: flex; flex-direction: column;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0;">Skills Gap Matrix</h3>
+                    <div class="job-dropdown"
+                        style="padding: 8px 12px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 13px; color: var(--text-main); font-weight: 600; display: flex; align-items: center; background: #f8fafc; margin-bottom: 0;">
+                        {{ job_title|title }} ({{ role_type|title }} Role)
+                    </div>
                 </div>
 
-                <div class="matrix-container">
-                    <table class="matrix-table">
-                        <thead>
-                            <tr>
-                                <th>Required Skills</th>
-                                <th>Your Skills</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Loop missing first -->
-                            {% for missing_skill in gap %}
-                            <tr>
-                                <td>{{ missing_skill|capitalize }}</td>
-                                <td class="status-cell">
-                                    <i class="fa-solid fa-circle-exclamation status-icon warning"></i>
-                                    Missing
-                                </td>
-                            </tr>
-                            {% endfor %}
+                <!-- Tabs Header -->
+                <div
+                    style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;">
+                    <button id="btn-tech" onclick="switchTab('tech')"
+                        style="background-color: #e6f0ff; color: #235ef2; border: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Technical
+                        Skills</button>
+                    <button id="btn-soft" onclick="switchTab('soft')"
+                        style="background-color: transparent; color: #6b7280; border: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Soft
+                        Skills</button>
+                    <button id="btn-yours" onclick="switchTab('yours')"
+                        style="background-color: transparent; color: #6b7280; border: none; font-size: 14px; font-weight: 600; padding: 8px 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s;">Your
+                        Skills</button>
+                </div>
 
-                            <!-- Loop some extras -->
-                            {% for have_skill in extra %}
-                            <tr>
-                                <td>{{ have_skill|capitalize }}</td>
-                                <td class="status-cell">
-                                    <i class="fa-solid fa-circle-check status-icon success"></i>
-                                    {{ have_skill|capitalize }}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                <div class="matrix-container" style="flex: 1; overflow-y: auto; padding-right: 5px;">
+                    <!-- Technical Tab -->
+                    <div id="tab-tech" style="display: block;">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th>Required Skills</th>
+                                    <th>Your Skills</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loop missing first -->
+                                {% for missing in aug_hard %}
+                                <tr style="vertical-align: top;">
+                                    <td style="padding-top: 15px;">
+                                        <strong style="font-size: 15px;">{{ missing.skill|title }}</strong>
+                                        {% if missing.contextual_warning %}
+                                        <div
+                                            style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; font-size: 12px; font-weight: 500; border-radius: 6px; padding: 6px 10px; margin-top: 8px;">
+                                            <i class="fa-solid fa-lightbulb"
+                                                style="color: #f59e0b; margin-right: 4px;"></i>
+                                            {{ missing.contextual_warning }}
+                                        </div>
+                                        {% endif %}
+
+                                        <div style="margin-top: 12px;">
+                                            <span
+                                                style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">Actionable
+                                                Learning Paths</span>
+                                            <ul style="margin: 4px 0 0 15px; padding: 0; font-size: 13px;">
+                                                {% for path in missing.learning_paths %}
+                                                <li style="margin-bottom: 2px;"><a href="{{ path.url }}" target="_blank"
+                                                        style="color: #2563eb; text-decoration: none; font-weight: 500;">{{
+                                                        path.title }} <i class="fa-solid fa-external-link"
+                                                            style="font-size:10px;"></i></a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+
+                                        {% if missing.project %}
+                                        <div
+                                            style="margin-top: 12px; background-color: #f8fafc; padding: 10px; border-radius: 6px; border-left: 3px solid #3b82f6;">
+                                            <span style="font-size: 12px; font-weight: 700; color: #1e293b;">Weekend
+                                                Project
+                                                Idea:</span>
+                                            <div style="font-size: 13px; color: #475569; margin-top: 4px;">{{
+                                                missing.project }}</div>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="status-cell" style="padding-top: 15px;">
+                                        <i class="fa-solid fa-circle-exclamation status-icon warning"></i>
+                                        Missing
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+
+                    </div> <!-- End Technical Tab -->
+
+                    <!-- Soft Tab -->
+                    <div id="tab-soft" style="display: none;">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th>Required Skills</th>
+                                    <th>Your Skills</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loop missing soft skills -->
+                                {% for missing in aug_soft %}
+                                <tr style="vertical-align: top;">
+                                    <td style="padding-top: 15px;">
+                                        <strong style="font-size: 15px;">{{ missing.skill|title }}</strong>
+                                        {% if missing.contextual_warning %}
+                                        <div
+                                            style="background-color: #fffbeb; color: #b45309; border: 1px solid #fde68a; font-size: 12px; font-weight: 500; border-radius: 6px; padding: 6px 10px; margin-top: 8px;">
+                                            <i class="fa-solid fa-lightbulb"
+                                                style="color: #f59e0b; margin-right: 4px;"></i>
+                                            {{ missing.contextual_warning }}
+                                        </div>
+                                        {% endif %}
+
+                                        <div style="margin-top: 12px;">
+                                            <span
+                                                style="font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase;">Actionable
+                                                Learning Paths</span>
+                                            <ul style="margin: 4px 0 0 15px; padding: 0; font-size: 13px;">
+                                                {% for path in missing.learning_paths %}
+                                                <li style="margin-bottom: 2px;"><a href="{{ path.url }}" target="_blank"
+                                                        style="color: #2563eb; text-decoration: none; font-weight: 500;">{{
+                                                        path.title }} <i class="fa-solid fa-external-link"
+                                                            style="font-size:10px;"></i></a></li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+
+                                        {% if missing.project %}
+                                        <div
+                                            style="margin-top: 12px; background-color: #f8fafc; padding: 10px; border-radius: 6px; border-left: 3px solid #3b82f6;">
+                                            <span style="font-size: 12px; font-weight: 700; color: #1e293b;">Practice
+                                                Ideas:</span>
+                                            <div style="font-size: 13px; color: #475569; margin-top: 4px;">{{
+                                                missing.project }}</div>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td class="status-cell" style="padding-top: 15px;">
+                                        <i class="fa-solid fa-circle-exclamation status-icon warning"></i>
+                                        Missing
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> <!-- End Soft Tab -->
+
+                    <!-- Your Skills Tab -->
+                    <div id="tab-yours" style="display: none;">
+                        <table class="matrix-table">
+                            <thead>
+                                <tr>
+                                    <th>Skill Category</th>
+                                    <th>Skill Name</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Loop extra hard skills -->
+                                {% for have_skill in extra_hard %}
+                                <tr>
+                                    <td><span
+                                            style="background-color: #e6f0ff; color: #235ef2; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">TECHNICAL</span>
+                                    </td>
+                                    <td class="status-cell">
+                                        <i class="fa-solid fa-circle-check status-icon success"></i>
+                                        {{ have_skill|title }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                                <!-- Loop extra soft skills -->
+                                {% for have_skill in extra_soft %}
+                                <tr>
+                                    <td><span
+                                            style="background-color: #eff6ff; color: #3b82f6; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">SOFT
+                                            SKILL</span></td>
+                                    <td class="status-cell">
+                                        <i class="fa-solid fa-circle-check status-icon success"
+                                            style="color: #3b82f6; background-color: #eff6ff;"></i>
+                                        {{ have_skill|title }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+
+                                {% if extra_hard|length == 0 and extra_soft|length == 0 %}
+                                <tr>
+                                    <td colspan="2"
+                                        style="text-align: center; color: var(--text-muted); font-style: italic; padding: 20px;">
+                                        No additional skills found.
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div> <!-- End Your Skills Tab -->
                 </div>
             </div>
+
+            <script>
+                function switchTab(tab) {
+                    const techTab = document.getElementById('tab-tech');
+                    const softTab = document.getElementById('tab-soft');
+                    const yoursTab = document.getElementById('tab-yours');
+                    const techBtn = document.getElementById('btn-tech');
+                    const softBtn = document.getElementById('btn-soft');
+                    const yoursBtn = document.getElementById('btn-yours');
+
+                    // Reset all
+                    techTab.style.display = 'none';
+                    softTab.style.display = 'none';
+                    yoursTab.style.display = 'none';
+                    techBtn.style.backgroundColor = 'transparent';
+                    techBtn.style.color = '#6b7280';
+                    softBtn.style.backgroundColor = 'transparent';
+                    softBtn.style.color = '#6b7280';
+                    yoursBtn.style.backgroundColor = 'transparent';
+                    yoursBtn.style.color = '#6b7280';
+
+                    if (tab === 'tech') {
+                        techTab.style.display = 'block';
+                        techBtn.style.backgroundColor = '#e6f0ff';
+                        techBtn.style.color = '#235ef2';
+                    } else if (tab === 'soft') {
+                        softTab.style.display = 'block';
+                        softBtn.style.backgroundColor = '#e6f0ff';
+                        softBtn.style.color = '#235ef2';
+                    } else if (tab === 'yours') {
+                        yoursTab.style.display = 'block';
+                        yoursBtn.style.backgroundColor = '#e6f0ff';
+                        yoursBtn.style.color = '#235ef2';
+                    }
+                }
+
+                // Dark Mode Logic
+                function initTheme() {
+                    const themeIcon = document.querySelector('#theme-toggle i');
+                    if (localStorage.getItem('theme') === 'dark') {
+                        document.body.classList.add('dark-theme');
+                        themeIcon.classList.remove('fa-moon');
+                        themeIcon.classList.add('fa-sun');
+                    }
+                }
+
+                function toggleDarkMode() {
+                    const isDark = document.body.classList.toggle('dark-theme');
+                    const themeIcon = document.querySelector('#theme-toggle i');
+
+                    if (isDark) {
+                        localStorage.setItem('theme', 'dark');
+                        themeIcon.classList.remove('fa-moon');
+                        themeIcon.classList.add('fa-sun');
+                    } else {
+                        localStorage.setItem('theme', 'light');
+                        themeIcon.classList.remove('fa-sun');
+                        themeIcon.classList.add('fa-moon');
+                    }
+                }
+
+                // PDF Export Logic
+                function exportPDF() {
+                    const element = document.getElementById('pdf-content');
+
+                    // Temporarily show the element off-screen for html2pdf to process
+                    element.style.display = 'block';
+
+                    const opt = {
+                        margin: [15, 15, 15, 15], // top, left, bottom, right in mm
+                        filename: 'SkillGap_AI_Report_{{ user_name }}.pdf',
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { scale: 2, useCORS: true },
+                        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                        pagebreak: { mode: 'css' }
+                    };
+
+                    html2pdf().set(opt).from(element).save().then(() => {
+                        // Restore hidden state
+                        element.style.display = 'none';
+                    });
+                }
+            </script>
 
 
 
         </div> <!-- end dashboard grid -->
+
+        <!-- HIDDEN PDF TEMPLATE -->
+        <div id="pdf-content"
+            style="display: none; width: 800px; padding: 20px; background: white; color: #1f2937; font-family: 'Inter', sans-serif;">
+            <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 20px; margin-bottom: 30px;">
+                <h1 style="color: #235ef2; margin: 0 0 10px 0; font-size: 28px;">SkillGap-AI Assessment Report</h1>
+                <p style="margin: 0; font-size: 16px;"><strong>Candidate:</strong> {{ user_name|title }}</p>
+                <p style="margin: 5px 0 0 0; font-size: 16px;"><strong>Target Role:</strong> {{ job_title|title }} ({{
+                    role_type|title }})</p>
+                <p style="margin: 5px 0 0 0; font-size: 16px;"><strong>Overall Match Score:</strong> {{ score }}%</p>
+            </div>
+
+            <!-- Technical Skills Gap -->
+            <h2 style="color: #111827; margin-bottom: 15px; font-size: 20px;">1. Technical Skills Gap</h2>
+            {% if aug_hard|length > 0 %}
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; width: 25%;">Missing
+                            Skill</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; width: 35%;">Context &
+                            Warning</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; width: 40%;">Recommended
+                            Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in aug_hard %}
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #e5e7eb; vertical-align: top;"><strong>{{
+                                item.skill|title }}</strong></td>
+                        <td style="padding: 12px; border: 1px solid #e5e7eb; vertical-align: top; color: #b45309;">
+                            {% if item.warning %}{{ item.warning }}{% else %}N/A{% endif %}
+                        </td>
+                        <td style="padding: 12px; border: 1px solid #e5e7eb; vertical-align: top;">
+                            {% if item.learning %}
+                            <strong style="color: #1fae62;">Learn:</strong> {{ item.learning }}<br>
+                            <strong style="color: #235ef2; display: inline-block; margin-top: 5px;">Project
+                                Idea:</strong> {{ item.project }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="margin-bottom: 30px; font-style: italic; color: #6b7280;">No technical skill gaps found!</p>
+            {% endif %}
+
+            <!-- Soft Skills Gap -->
+            <h2 style="color: #111827; margin-bottom: 15px; font-size: 20px; page-break-before: auto;">2. Soft Skills &
+                Methodologies Gap</h2>
+            {% if aug_soft|length > 0 %}
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 14px;">
+                <thead>
+                    <tr style="background-color: #f3f4f6;">
+                        <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; width: 25%;">Missing
+                            Skill</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; width: 35%;">Context &
+                            Warning</th>
+                        <th style="padding: 12px; text-align: left; border: 1px solid #e5e7eb; width: 40%;">Recommended
+                            Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in aug_soft %}
+                    <tr>
+                        <td style="padding: 12px; border: 1px solid #e5e7eb; vertical-align: top;"><strong>{{
+                                item.skill|title }}</strong></td>
+                        <td style="padding: 12px; border: 1px solid #e5e7eb; vertical-align: top; color: #b45309;">
+                            {% if item.warning %}{{ item.warning }}{% else %}N/A{% endif %}
+                        </td>
+                        <td style="padding: 12px; border: 1px solid #e5e7eb; vertical-align: top;">
+                            {% if item.learning %}
+                            <strong style="color: #1fae62;">Learn:</strong> {{ item.learning }}<br>
+                            <strong style="color: #235ef2; display: inline-block; margin-top: 5px;">Project
+                                Idea:</strong> {{ item.project }}
+                            {% else %}
+                            N/A
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="margin-bottom: 30px; font-style: italic; color: #6b7280;">No soft skill gaps found!</p>
+            {% endif %}
+
+            <!-- Additional Skills -->
+            <h2 style="color: #111827; margin-bottom: 15px; font-size: 20px;">3. Additional Candidate Skills</h2>
+            <div
+                style="font-size: 14px; line-height: 1.8; border: 1px solid #e5e7eb; padding: 15px; border-radius: 8px; background-color: #f8fafc;">
+                <p style="margin: 0 0 10px 0;"><strong>Technical Skills possessed beyond job requirements:</strong><br>
+                    <span style="color: #4b5563;">
+                        {% if extra_hard|length > 0 %}
+                        {% for skill in extra_hard %}{{ skill|title }}{% if not loop.last %}, {% endif %}{% endfor %}
+                        {% else %}
+                        None
+                        {% endif %}
+                    </span>
+                </p>
+                <p style="margin: 0;"><strong>Soft Skills possessed beyond job requirements:</strong><br>
+                    <span style="color: #4b5563;">
+                        {% if extra_soft|length > 0 %}
+                        {% for skill in extra_soft %}{{ skill|title }}{% if not loop.last %}, {% endif %}{% endfor %}
+                        {% else %}
+                        None
+                        {% endif %}
+                    </span>
+                </p>
+            </div>
+        </div>
+
     </main>
 
 </body>

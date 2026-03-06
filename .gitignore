@@ -20,4 +20,6 @@ uploads/
 # IDEs and OS Files
 .vscode/
 .DS_Store
-Thumbs.db*tempCodeRunnerFile.py
+Thumbs.db
+*tempCodeRunnerFile.py
+*.log

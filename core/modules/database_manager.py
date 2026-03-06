@@ -125,11 +125,22 @@ def print_all_jobs():
         print(f"ID: {job[0]} | Title: {job[1]} | Description: {job[2]}")
 
 
-add_candidate_to_db("Akshat", "akshat@example.com", "Python, AI/ML, Data Science")
-add_job_to_db(
-    "Data Scientist", "Analyze data and build models.", "Python, AI/ML, Data Science"
-)
-print_all_candidates()
-print_all_jobs()
-cursor.close()
-db.close()
+def get_all_jobs():
+    try:
+        cursor.execute("SELECT id, title, company FROM jobs")
+        jobs = cursor.fetchall()
+        # Convert to list of dicts for easy template rendering
+        return [{"id": j[0], "title": j[1], "company": j[2]} for j in jobs]
+    except mysql.connector.Error as err:
+        print(f"Error fetching jobs: {err}")
+        return []
+
+def get_job_by_id(job_id):
+    try:
+        cursor.execute("SELECT title, description_text FROM jobs WHERE id = %s", (job_id,))
+        job = cursor.fetchone()
+        if job:
+            return {"title": job[0], "description_text": job[1]}
+    except mysql.connector.Error as err:
+        print(f"Error fetching job by ID: {err}")
+    return None

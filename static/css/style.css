@@ -9,22 +9,41 @@
   --brand-warning: #f17b3c;
   /* Orange warnings */
 
-  --bg-color: #e0f2fe;
+  --bg-color-start: #e0f2fe;
+  --bg-color-end: #d1fae5;
   /* Core page background color (soft light blue/teal gradient base) */
   --card-bg: #ffffff;
   /* White blocks */
+  --sidebar-bg: #ffffff;
   --sidebar-text: #4b5563;
   /* Gray sidebar text */
   --sidebar-active: #235ef2;
   /* Active sidebar link */
+  --sidebar-hover: #f3f4f6;
   --text-main: #1f2937;
   --text-muted: #6b7280;
   --border-light: #e5e7eb;
+  --ring-border: #e5e7eb;
+}
+
+/* Dark Theme Variables */
+body.dark-theme {
+  --brand-light: #1e3a8a;
+  --bg-color-start: #0f172a;
+  --bg-color-end: #1e293b;
+  --card-bg: #1e293b;
+  --sidebar-bg: #1e293b;
+  --sidebar-text: #94a3b8;
+  --sidebar-hover: #334155;
+  --text-main: #f8fafc;
+  --text-muted: #cbd5e1;
+  --border-light: #334155;
+  --ring-border: #334155;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  background: linear-gradient(135deg, #e0f2fe 0%, #d1fae5 100%);
+  background: linear-gradient(135deg, var(--bg-color-start) 0%, var(--bg-color-end) 100%);
   color: var(--text-main);
   margin: 0;
   display: flex;
@@ -37,13 +56,13 @@ body {
 /* ========================================= */
 aside {
   width: 200px;
-  background-color: #ffffff;
+  background-color: var(--sidebar-bg);
   display: flex;
   flex-direction: column;
   padding: 30px 20px;
   border-top-right-radius: 20px;
   border-bottom-right-radius: 20px;
-  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.03);
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
   z-index: 10;
 }
 
@@ -94,7 +113,7 @@ aside {
 }
 
 .nav-item:hover:not(.active) {
-  background-color: #f3f4f6;
+  background-color: var(--sidebar-hover);
 }
 
 /* ========================================= */
@@ -133,15 +152,20 @@ header h1 strong {
 
 .icon-btn {
   background: none;
-  border: none;
+  border: 1px solid var(--border-light);
   font-size: 18px;
-  color: var(--text-muted);
+  color: var(--text-main);
   cursor: pointer;
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   width: 40px;
   height: 40px;
   border-radius: 50%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.icon-btn:hover {
+  background-color: var(--brand-light);
 }
 
 .profile-pic {
@@ -180,7 +204,7 @@ header h1 strong {
 
 .progress-track {
   height: 14px;
-  background-color: #e5e7eb;
+  background-color: var(--border-light);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -293,13 +317,14 @@ header h1 strong {
   border-radius: 12px;
   font-size: 13px;
   line-height: 1.5;
-  color: #1e3a8a;
+  color: var(--text-main);
   margin-bottom: 25px;
 }
 
 .matches-grid {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  gap: 35px;
   margin-top: 10px;
 }
 
@@ -311,21 +336,21 @@ header h1 strong {
   align-items: center;
   justify-content: center;
   font-size: 24px;
-  border: 4px solid #e5e7eb;
+  border: 4px solid var(--ring-border);
 }
 
 .match-ring.active-1 {
   border-color: #1fae62;
-  border-right-color: #e5e7eb;
+  border-right-color: var(--ring-border);
 }
 
 .match-ring.active-2 {
   border-color: var(--brand-blue);
-  border-bottom-color: #e5e7eb;
+  border-bottom-color: var(--ring-border);
 }
 
 .match-ring.active-3 {
-  border-color: #94a3b8;
+  border-color: var(--text-muted);
 }
 
 .match-label {
@@ -341,15 +366,14 @@ select.job-dropdown {
   padding: 10px 15px;
   border-radius: 8px;
   border: 1px solid var(--border-light);
-  background: white;
+  background: var(--card-bg);
+  color: var(--text-main);
   margin-bottom: 20px;
   font-weight: 600;
   outline: none;
 }
 
 .matrix-container {
-  max-height: 400px;
-  overflow-y: auto;
   padding-right: 5px;
 }
 
@@ -448,7 +472,7 @@ select.job-dropdown {
 .rec-progress {
   width: 100%;
   height: 4px;
-  background: #e5e7eb;
+  background: var(--border-light);
   border-radius: 2px;
   position: relative;
 }
