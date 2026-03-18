@@ -1,145 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SkillGap-AI | Explore Roles</title>
-    <!-- Google Fonts for Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome for standard icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
+        /* ── Page-level overrides ── */
         .container {
-            width: 100%;
-            max-width: 700px;
-            padding: 20px;
-            box-sizing: border-box;
-            margin: 0 auto;
-            margin-top: 50px;
+            width: 100%; max-width: 700px; padding: 20px;
+            box-sizing: border-box; margin: 0 auto; margin-top: 40px;
         }
 
+        /* ── Top nav ── */
+        .page-actions {
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 10px; margin-bottom: 22px; flex-wrap: wrap;
+        }
+        .page-actions-left,
+        .page-actions-right { display: flex; gap: 8px; flex-wrap: wrap; }
+
+        .nav-pill {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 9px 15px; border-radius: 999px;
+            border: 1px solid var(--border-light); text-decoration: none;
+            font-size: 13px; font-weight: 700; color: var(--text-main);
+            background: var(--card-bg); cursor: pointer; font-family: inherit;
+            transition: border-color .15s, background .15s;
+        }
+        .nav-pill:hover { border-color: var(--brand-blue); background: #f0f5ff; }
+        .nav-pill.primary { background: var(--brand-blue); border-color: var(--brand-blue); color: white; }
+        .nav-pill.primary:hover { opacity: 0.9; }
+        .nav-pill-icon { padding: 9px 12px; }
+
+        /* ── Card ── */
         .card-explore {
-            background: var(--card-bg);
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            background: var(--card-bg); border-radius: 20px; padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 1px solid var(--border-light);
         }
+        h1 { font-size: 32px; color: var(--brand-blue); margin-bottom: 8px; }
+        .subtitle { color: var(--text-muted); margin-bottom: 36px; }
 
-        h1 {
-            font-size: 36px;
-            color: var(--brand-blue);
-            margin-bottom: 10px;
+        /* ── Form elements ── */
+        .field { margin-bottom: 20px; }
+        .field label b { color: var(--text-main); font-size: 14px; }
+
+        select, input[type="file"] {
+            width: 100%; padding: 13px 15px;
+            border: 1px solid var(--border-light);
+            background: var(--card-bg); color: var(--text-main);
+            border-radius: 12px; font-family: inherit; font-size: 14px;
+            margin-top: 8px; box-sizing: border-box;
+            transition: border-color .15s;
         }
+        select:focus { outline: none; border-color: var(--brand-blue); }
+        input[type="file"] { padding: 10px 0; border: none; background: none; }
 
-        .subtitle {
-            color: var(--text-muted);
-            margin-bottom: 40px;
+        /* ── Submit button ── */
+        .btn-primary {
+            width: 100%; padding: 17px; background: var(--brand-blue); color: white;
+            border: none; border-radius: 12px; font-weight: 700; font-size: 17px;
+            cursor: pointer; margin-top: 16px; transition: opacity .2s;
+            font-family: inherit; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
-
-        button.btn-primary {
-            width: 100%;
-            padding: 18px;
-            background: var(--brand-blue);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 18px;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: opacity 0.2s;
+        .btn-primary:hover:not(:disabled) { opacity: 0.9; }
+        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-spinner {
+            display: none; width: 18px; height: 18px; border-radius: 50%;
+            border: 2.5px solid rgba(255,255,255,0.35); border-top-color: #fff;
+            animation: spin .75s linear infinite; flex: 0 0 auto;
         }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        button.btn-primary:hover {
-            opacity: 0.9;
-        }
+        /* ── Alerts ── */
+        .alert.warning { background: #fff7ed; border: 1px solid #fdba74; color: #9a3412; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; font-size: 14px; }
+        .alert.info    { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 10px; padding: 12px 14px; margin-bottom: 18px; font-size: 14px; }
 
-        label b {
-            color: var(--text-main);
+        @media (max-width: 640px) {
+            .container { margin-top: 20px; }
+            .card-explore { padding: 24px; }
+            h1 { font-size: 26px; }
         }
     </style>
     <script>
-        // Load dark mode preference
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark-theme');
-        }
-        function initTheme() {
-            if (localStorage.getItem('theme') === 'dark') {
-                document.body.classList.add('dark-theme');
-            }
-        }
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+        function initTheme() { if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-theme'); }
     </script>
 </head>
-
 <body onload="initTheme()">
-    <!-- SIDEBAR -->
-    <aside>
-        <div class="logo-container">
-            <div class="logo-icon"></div>
-            <span>SkillGap-AI</span>
-        </div>
 
-        <div class="nav-menu">
-            <a href="/" style="text-decoration: none; color: inherit;">
-                <div class="nav-item">
-                    <i class="fa-solid fa-table-cells-large"></i>
-                    Dashboard
-                </div>
-            </a>
-            <a href="/explore" style="text-decoration: none; color: inherit;">
-                <div class="nav-item active">
-                    <i class="fa-solid fa-briefcase"></i>
-                    Explore Roles
-                </div>
-            </a>
-            <div class="nav-item">
-                <i class="fa-solid fa-graduation-cap"></i>
-                Learning Paths
+    <!-- SIDEBAR (unchanged — from style.css) -->
+    <aside>
+        <a href="{{ url_for('index') }}" style="text-decoration:none;color:inherit;">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <span>SkillGap-AI</span>
             </div>
-            <div class="nav-item flex-end" style="margin-top:auto">
-                <i class="fa-solid fa-gears"></i>
-                Settings
+        </a>
+        <div class="nav-menu">
+            <a href="/" style="text-decoration:none;color:inherit;">
+                <div class="nav-item">
+                    <i class="fa-solid fa-table-cells-large"></i> Dashboard
+                </div>
+            </a>
+            <a href="/explore" style="text-decoration:none;color:inherit;">
+                <div class="nav-item active">
+                    <i class="fa-solid fa-briefcase"></i> Explore Roles
+                </div>
+            </a>
+            <a href="{{ url_for('learning_paths') }}" style="text-decoration:none;color:inherit;">
+                <div class="nav-item">
+                    <i class="fa-solid fa-graduation-cap"></i> Learning Paths
+                </div>
+            </a>
+            <a href="{{ url_for('history') }}" style="text-decoration:none;color:inherit;">
+                <div class="nav-item">
+                    <i class="fa-solid fa-clock-rotate-left"></i> History
+                </div>
+            </a>
+            <div class="nav-item flex-end" style="margin-top:auto;opacity:.4;cursor:not-allowed;" title="Coming soon">
+                <i class="fa-solid fa-gears"></i> Settings
             </div>
         </div>
     </aside>
 
     <main>
         <div class="container">
+
+            <!-- ── Top action bar ── -->
+            <div class="page-actions">
+                <div class="page-actions-left">
+                    <!-- Back / Forward -->
+                    <button class="nav-pill nav-pill-icon" onclick="history.go(-1)" title="Go back" aria-label="Back">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <button class="nav-pill nav-pill-icon" onclick="history.go(1)" title="Go forward" aria-label="Forward">
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    <a class="nav-pill" href="{{ url_for('index') }}">
+                        <i class="fa-solid fa-house"></i> Home
+                    </a>
+                </div>
+                <div class="page-actions-right">
+                    <a class="nav-pill" href="{{ url_for('history') }}">
+                        <i class="fa-solid fa-clock-rotate-left"></i> History
+                    </a>
+                    <a class="nav-pill primary" href="{{ url_for('learning_paths') }}">
+                        <i class="fa-solid fa-graduation-cap"></i> Learning Paths
+                    </a>
+                </div>
+            </div>
+
+            <!-- ── Card ── -->
             <div class="card-explore">
                 <h1>Explore Job Profiles</h1>
-                <p class="subtitle">Analyze your resume against predefined job profiles from our database.</p>
-                <form action="/analyze_predefined" method="POST" enctype="multipart/form-data">
-                    <label><b>1. Select Predefined Job Profile</b></label>
-                    <select name="job_id" required
-                        style="width: 100%; padding: 15px; border: 1px solid var(--border-light); background: var(--card-bg); color: var(--text-main); border-radius: 12px; margin-top: 8px; margin-bottom: 20px; box-sizing: border-box;">
-                        {% for job in jobs %}
-                        <option value="{{ job.id }}">{{ job.title }} ({{ job.company }})</option>
-                        {% endfor %}
-                        {% if jobs|length == 0 %}
-                        <option value="" disabled>No jobs available in DB</option>
-                        {% endif %}
-                    </select>
+                <p class="subtitle">Analyse your resume against predefined job profiles from our database.</p>
 
-                    <label><b>2. Role Type Weighting</b></label>
-                    <select name="role_type"
-                        style="width: 100%; padding: 15px; border: 1px solid var(--border-light); background: var(--card-bg); color: var(--text-main); border-radius: 12px; margin-top: 8px; margin-bottom: 20px; box-sizing: border-box;">
-                        <option value="technical">Technical Role (80% Hard / 20% Soft)</option>
-                        <option value="management">Management Role (60% Hard / 40% Soft)</option>
-                    </select>
+                {% if error %}
+                <div class="alert warning"><i class="fa-solid fa-triangle-exclamation" style="margin-right:6px;"></i>{{ error }}</div>
+                {% endif %}
+                {% if database_status %}
+                <div class="alert info"><i class="fa-solid fa-circle-info" style="margin-right:6px;"></i>Database connection is unavailable — predefined roles may be empty.</div>
+                {% endif %}
 
-                    <label><b>3. Your Resume (PDF)</b></label><br>
-                    <input type="file" name="resume" accept=".pdf" required
-                        style="margin: 15px 0 30px 0; color: var(--text-main);"><br>
+                <form id="exploreForm" action="/analyze_predefined" method="POST" enctype="multipart/form-data">
 
-                    <button type="submit" class="btn-primary">Analyze Match</button>
+                    <div class="field">
+                        <label><b>1. Select Predefined Job Profile</b></label>
+                        <select name="job_id" required>
+                            {% for job in jobs %}
+                            <option value="{{ job.id }}">{{ job.title }} — {{ job.company }}</option>
+                            {% endfor %}
+                            {% if jobs|length == 0 %}
+                            <option value="" disabled selected>No jobs in database</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label><b>2. Role Type Weighting</b></label>
+                        <select name="role_type">
+                            <option value="technical">Technical Role (80% Hard / 20% Soft)</option>
+                            <option value="management">Management Role (60% Hard / 40% Soft)</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label><b>3. Your Resume (PDF)</b></label>
+                        <input type="file" name="resume" accept=".pdf" required>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="submitBtn" {% if jobs|length == 0 %}disabled{% endif %}>
+                        <span class="btn-spinner" id="btnSpinner"></span>
+                        <span id="btnText">Analyse Match</span>
+                    </button>
                 </form>
+
+                {% if jobs|length == 0 %}
+                <p class="subtitle" style="margin-top:16px;margin-bottom:0;font-size:13px;">
+                    Seed the database with <code>python seed_jobs.py</code>, or use
+                    <a href="{{ url_for('index') }}" style="color:var(--brand-blue);font-weight:600;">custom job analysis</a> instead.
+                </p>
+                {% endif %}
             </div>
+
         </div>
     </main>
-</body>
 
+    <script>
+        document.getElementById('exploreForm').addEventListener('submit', function(e) {
+            const file = document.querySelector('[name="resume"]').files[0];
+            if (!file) { e.preventDefault(); alert('Please choose a PDF resume.'); return; }
+
+            const btn     = document.getElementById('submitBtn');
+            const spinner = document.getElementById('btnSpinner');
+            const txt     = document.getElementById('btnText');
+            btn.disabled          = true;
+            spinner.style.display = 'block';
+            txt.textContent       = 'Analysing…';
+        });
+    </script>
+</body>
 </html>
