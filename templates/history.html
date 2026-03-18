@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillGap-AI | History</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .container { width:100%; max-width:900px; padding:20px; box-sizing:border-box; margin:0 auto; margin-top:40px; }
+        .page-actions {
+            display:flex; justify-content:space-between; align-items:center;
+            gap:10px; margin-bottom:22px; flex-wrap:wrap;
+        }
+        .page-actions-left, .page-actions-right { display:flex; gap:8px; flex-wrap:wrap; }
+        .nav-pill {
+            display:inline-flex; align-items:center; gap:5px;
+            padding:9px 15px; border-radius:999px;
+            border:1px solid var(--border-light); text-decoration:none;
+            font-size:13px; font-weight:700; color:var(--text-main);
+            background:var(--card-bg); cursor:pointer; font-family:inherit;
+            transition:border-color .15s, background .15s;
+        }
+        .nav-pill:hover { border-color:var(--brand-blue); background:#f0f5ff; }
+        .nav-pill.primary { background:var(--brand-blue); border-color:var(--brand-blue); color:white; }
+        .nav-pill-icon { padding:9px 12px; }
+
+        /* Card */
+        .history-card {
+            background:var(--card-bg); border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,0.08);
+            border:1px solid var(--border-light);
+            overflow:hidden;
+        }
+        .history-header {
+            padding:28px 32px 20px;
+            border-bottom:1px solid var(--border-light);
+        }
+        .history-header h1 { font-size:26px; margin:0 0 6px; color:var(--brand-blue); }
+        .history-header p  { margin:0; color:var(--text-muted); font-size:14px; }
+
+        /* Table */
+        table { width:100%; border-collapse:collapse; }
+        thead th {
+            padding:12px 16px; background:#f8fafc;
+            border-bottom:1px solid var(--border-light);
+            font-size:12px; font-weight:700; text-transform:uppercase;
+            letter-spacing:.05em; color:var(--text-muted); text-align:left;
+        }
+        tbody tr { transition:background .15s; }
+        tbody tr:hover { background:#f8fafc; }
+        tbody tr + tr { border-top:1px solid var(--border-light); }
+        td { padding:14px 16px; font-size:14px; vertical-align:middle; }
+
+        .score-pill {
+            display:inline-flex; padding:3px 10px; border-radius:999px;
+            font-size:12px; font-weight:800; min-width:46px; justify-content:center;
+        }
+        .score-high   { background:#dcfce7; color:#15803d; }
+        .score-medium { background:#fef9c3; color:#854d0e; }
+        .score-low    { background:#fee2e2; color:#b91c1c; }
+
+        .mode-badge {
+            display:inline-flex; align-items:center; gap:5px;
+            padding:3px 9px; border-radius:999px;
+            font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em;
+        }
+        .mode-ai       { background:#eef5ff; color:#235ef2; }
+        .mode-fallback { background:#fff8e8; color:#92400e; }
+        .mode-unknown  { background:#f1f5f9; color:var(--text-muted); }
+        .mode-not_needed { background:#edfdf3; color:#15803d; }
+
+        .empty-state { padding:48px 24px; text-align:center; color:var(--text-muted); }
+        .empty-state h3 { font-size:20px; margin:0 0 8px; color:var(--text-main); }
+
+        @media (max-width:720px) {
+            .container { margin-top:20px; }
+            .col-hide { display:none; }
+            td, th { padding:10px 10px; }
+        }
+    </style>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') document.documentElement.classList.add('dark-theme');
+        function initTheme() { if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-theme'); }
+    </script>
+</head>
+<body onload="initTheme()">
+
+    <!-- SIDEBAR -->
+    <aside>
+        <a href="{{ url_for('index') }}" style="text-decoration:none;color:inherit;">
+            <div class="logo-container">
+                <div class="logo-icon"></div>
+                <span>SkillGap-AI</span>
+            </div>
+        </a>
+        <div class="nav-menu">
+            <a href="/" style="text-decoration:none;color:inherit;">
+                <div class="nav-item"><i class="fa-solid fa-table-cells-large"></i> Dashboard</div>
+            </a>
+            <a href="/explore" style="text-decoration:none;color:inherit;">
+                <div class="nav-item"><i class="fa-solid fa-briefcase"></i> Explore Roles</div>
+            </a>
+            <a href="{{ url_for('learning_paths') }}" style="text-decoration:none;color:inherit;">
+                <div class="nav-item"><i class="fa-solid fa-graduation-cap"></i> Learning Paths</div>
+            </a>
+            <a href="{{ url_for('history') }}" style="text-decoration:none;color:inherit;">
+                <div class="nav-item active"><i class="fa-solid fa-clock-rotate-left"></i> History</div>
+            </a>
+            <div class="nav-item flex-end" style="margin-top:auto;opacity:.4;cursor:not-allowed;" title="Coming soon">
+                <i class="fa-solid fa-gears"></i> Settings
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <div class="container">
+
+            <!-- Nav bar -->
+            <div class="page-actions">
+                <div class="page-actions-left">
+                    <button class="nav-pill nav-pill-icon" onclick="history.go(-1)" title="Back"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button class="nav-pill nav-pill-icon" onclick="history.go(1)"  title="Forward"><i class="fa-solid fa-arrow-right"></i></button>
+                    <a class="nav-pill" href="{{ url_for('index') }}"><i class="fa-solid fa-house"></i> Home</a>
+                </div>
+                <div class="page-actions-right">
+                    <a class="nav-pill" href="{{ url_for('learning_paths') }}"><i class="fa-solid fa-graduation-cap"></i> Learning Paths</a>
+                    <a class="nav-pill" href="{{ url_for('explore') }}"><i class="fa-solid fa-briefcase"></i> Explore Roles</a>
+                    <a class="nav-pill primary" href="{{ url_for('index') }}"><i class="fa-solid fa-plus"></i> New Analysis</a>
+                </div>
+            </div>
+
+            <!-- History card -->
+            <div class="history-card">
+                <div class="history-header">
+                    <h1><i class="fa-solid fa-clock-rotate-left" style="margin-right:10px;font-size:22px;"></i>Analysis History</h1>
+                    <p>Last {{ records|length }} resume analyses run in this session.</p>
+                </div>
+
+                {% if records %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Candidate</th>
+                            <th>Target Role</th>
+                            <th>Score</th>
+                            <th class="col-hide">Missing</th>
+                            <th class="col-hide">Known</th>
+                            <th>AI Mode</th>
+                            <th class="col-hide">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for r in records %}
+                        <tr>
+                            <td style="color:var(--text-muted);font-size:12px;">{{ loop.index }}</td>
+                            <td style="font-weight:700;">{{ r.user_name or '—' }}</td>
+                            <td>
+                                {{ r.job_title or '—' }}
+                                {% if r.role_type %}
+                                <span style="display:block;font-size:11px;color:var(--text-muted);margin-top:2px;">{{ r.role_type|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="score-pill {% if r.score >= 80 %}score-high{% elif r.score >= 50 %}score-medium{% else %}score-low{% endif %}">
+                                    {{ r.score|int }}%
+                                </span>
+                            </td>
+                            <td class="col-hide" style="color:var(--text-muted);">{{ r.missing_count }}</td>
+                            <td class="col-hide" style="color:var(--text-muted);">{{ r.known_count }}</td>
+                            <td>
+                                <span class="mode-badge mode-{{ r.roadmap_mode or 'unknown' }}">
+                                    {% if r.roadmap_mode == 'ai' %}<i class="fa-solid fa-wand-magic-sparkles"></i>{% endif %}
+                                    {{ r.roadmap_mode or 'unknown' }}
+                                </span>
+                            </td>
+                            <td class="col-hide" style="color:var(--text-muted);font-size:12px;white-space:nowrap;">
+                                {{ r.created_at[:16].replace('T',' ') if r.created_at else '—' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-clock-rotate-left" style="font-size:40px;margin-bottom:16px;opacity:.25;"></i>
+                    <h3>No analyses yet</h3>
+                    <p style="margin-bottom:20px;">Run your first resume analysis and it'll show up here.</p>
+                    <a href="{{ url_for('index') }}"
+                       style="display:inline-flex;align-items:center;gap:7px;padding:10px 20px;background:var(--brand-blue);color:#fff;border-radius:99px;font-size:13px;font-weight:700;text-decoration:none;">
+                        <i class="fa-solid fa-upload"></i> Start Analysis
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

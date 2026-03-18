@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillGap-AI | Analyzing…</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brand: #235ef2;
+            --brand-dark: #163ea9;
+            --bg: #f5f7fb;
+            --text-main: #172033;
+            --text-muted: #5f6b85;
+            --surface: #ffffff;
+            --border: #d7deed;
+            --shadow: 0 18px 45px rgba(26,43,77,0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: radial-gradient(circle at top left, rgba(35,94,242,0.12), transparent 28%),
+                        linear-gradient(180deg, #f8faff 0%, var(--bg) 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+        .card {
+            background: var(--surface);
+            border: 1px solid rgba(35,94,242,0.1);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            padding: 52px 48px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+        }
+        /* Spinner ring */
+        .spinner-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+        .ring {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            border: 4px solid #e2e8ff;
+            border-top-color: var(--brand);
+            animation: spin 0.9s linear infinite;
+            position: relative;
+        }
+        .ring-inner {
+            position: absolute;
+            inset: 10px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            border-top-color: rgba(35,94,242,0.3);
+            animation: spin 1.4s linear infinite reverse;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        h1 {
+            font-size: 26px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.02em;
+        }
+        .sub {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+        /* Animated step list */
+        .steps {
+            list-style: none;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 32px;
+        }
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: color 0.4s;
+        }
+        .step.active { color: var(--brand); }
+        .step.done   { color: #16794a; }
+        .step-dot {
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border);
+            flex: 0 0 auto;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 11px;
+            font-weight: 800;
+            transition: all 0.4s;
+        }
+        .step.active .step-dot {
+            border-color: var(--brand);
+            background: #eef4ff;
+            color: var(--brand);
+        }
+        .step.done .step-dot {
+            border-color: #16794a;
+            background: #e8fff2;
+            color: #16794a;
+        }
+        /* Progress bar */
+        .progress-wrap {
+            height: 6px;
+            background: #e8edf7;
+            border-radius: 99px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--brand), #6b8ef7);
+            border-radius: 99px;
+            width: 0%;
+            transition: width 0.6s ease;
+        }
+        .brand-link {
+            margin-top: 28px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--brand);
+            text-decoration: none;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="spinner-wrap">
+            <div class="ring">
+                <div class="ring-inner"></div>
+            </div>
+        </div>
+        <h1>Analysing your resume…</h1>
+        <p class="sub">This takes 5–15 seconds. We're extracting skills, comparing them to the role, and building your AI learning roadmap.</p>
+
+        <ul class="steps" id="stepList">
+            <li class="step active" id="s1"><span class="step-dot">1</span> Reading & extracting your PDF</li>
+            <li class="step"        id="s2"><span class="step-dot">2</span> Identifying your skills</li>
+            <li class="step"        id="s3"><span class="step-dot">3</span> Comparing to job requirements</li>
+            <li class="step"        id="s4"><span class="step-dot">4</span> Generating AI learning roadmap</li>
+            <li class="step"        id="s5"><span class="step-dot">5</span> Preparing your results</li>
+        </ul>
+
+        <div class="progress-wrap">
+            <div class="progress-bar" id="pbar"></div>
+        </div>
+    </div>
+    <a class="brand-link" href="/">SkillGap-AI</a>
+
+    <script>
+        // Simulate step progression while the real form POST runs in background
+        const steps = ['s1','s2','s3','s4','s5'];
+        const delays = [0, 2000, 4500, 7000, 10000];
+        const pcts   = [10,  28,   52,   76,   92];
+
+        delays.forEach((ms, i) => {
+            setTimeout(() => {
+                // Mark previous as done
+                if (i > 0) {
+                    const prev = document.getElementById(steps[i-1]);
+                    prev.classList.remove('active');
+                    prev.classList.add('done');
+                    prev.querySelector('.step-dot').textContent = '✓';
+                }
+                document.getElementById(steps[i]).classList.add('active');
+                document.getElementById('pbar').style.width = pcts[i] + '%';
+            }, ms);
+        });
+    </script>
+</body>
+</html>
