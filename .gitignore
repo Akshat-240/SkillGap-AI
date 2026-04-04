@@ -23,3 +23,33 @@ uploads/
 Thumbs.db
 *tempCodeRunnerFile.py
 *.log
+
+
+# open .gitignore and add these lines:
+.env
+__pycache__/
+*.pyc
+uploads/
+history.db
+venv/
+results/
+data/
+*.log
+flake8_results.txt
+pytest_results.txt
+.DS_Store
+
+
+# Research & Eval (local only)
+research_eval.py
+regenerate_charts.py
+inspect_data.py
+check_env.py
+check_jd.py
+Diagnose.py
+
+# Docs & Notes (local only)
+AI_REVIEW_HANDOFF.md
+READY_STATE_LEARNING_NOTES.md
+project_overview.md
+text
