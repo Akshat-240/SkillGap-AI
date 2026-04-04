@@ -4,9 +4,8 @@ import mysql.connector
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from core.modules.matcher import clean_for_nlp, calculate_match_score
-
-from core.modules.extractor import extract_text_from_pdf
+from core.modules.matcher import clean_for_nlp, calculate_match_score  # noqa: E402
+from core.modules.extractor import extract_text_from_pdf  # noqa: E402
 
 
 def analyze_pdf_against_database_job(pdf_path, job_id):
@@ -38,7 +37,15 @@ def analyze_pdf_against_database_job(pdf_path, job_id):
         job_title = job_data[0]
         job_hard, job_soft = clean_for_nlp(job_title)
 
-        score, missing_hard, extra_hard, aug_hard, missing_soft, extra_soft, aug_soft = calculate_match_score(
+        (
+            score,
+            missing_hard,
+            extra_hard,
+            aug_hard,
+            missing_soft,
+            extra_soft,
+            aug_soft,
+        ) = calculate_match_score(
             resume_hard, resume_soft, job_hard, job_soft, role_type="technical"
         )
 
@@ -52,7 +59,7 @@ def analyze_pdf_against_database_job(pdf_path, job_id):
         if missing_hard or missing_soft:
             print(f"📚 TECH STUDY LIST   : {missing_hard}")
             print(f"📚 SOFT SKILL LIST   : {missing_soft}")
-            print(f"💡 TIP: Focus your upcoming projects on these missing skills!")
+            print("💡 TIP: Focus your upcoming projects on these missing skills!")
         else:
             print("🚀 STUDY LIST   : None! You have all the required skills!")
 
