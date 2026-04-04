@@ -47,8 +47,8 @@ body {
   color: var(--text-main);
   margin: 0;
   display: flex;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* ========================================= */
@@ -166,6 +166,26 @@ header h1 strong {
 
 .icon-btn:hover {
   background-color: var(--brand-light);
+}
+
+.alert {
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.alert.warning {
+  background: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+}
+
+.alert.info {
+  background: #eff6ff;
+  border: 1px solid #93c5fd;
+  color: #1d4ed8;
 }
 
 .profile-pic {
@@ -501,4 +521,61 @@ select.job-dropdown {
   font-weight: 600;
   font-size: 12px;
   cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 960px) {
+  body {
+    display: block;
+  }
+
+  aside {
+    width: auto;
+    border-radius: 0 0 20px 20px;
+    padding: 20px;
+  }
+
+  .nav-menu {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .nav-item {
+    min-width: 110px;
+  }
+
+  main {
+    padding: 20px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .top-icons {
+    flex-wrap: wrap;
+  }
+
+  .score-row {
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .matches-grid {
+    gap: 18px;
+    flex-wrap: wrap;
+  }
 }
