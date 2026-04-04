@@ -1,14 +1,17 @@
-import mysql.connector
 import json
+import os
 import time
+from pathlib import Path
 
-DB_DEBUG_LOG_PATH = r"c:\Users\aksha\Desktop\SG_AI\debug-aedf66.log"
+import mysql.connector
+
+DB_DEBUG_LOG_PATH = Path(__file__).resolve().parents[2] / "debug-aedf66.log"
+_last_connection_error = None
 
 
 def _write_debug_log(
     hypothesis_id: str, message: str, data: dict, run_id: str = "initial"
 ):
-    # region agent log
     try:
         payload = {
             "sessionId": "aedf66",
@@ -20,127 +23,165 @@ def _write_debug_log(
             "runId": run_id,
             "hypothesisId": hypothesis_id,
         }
-        with open(DB_DEBUG_LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(json.dumps(payload) + "\n")
+        with DB_DEBUG_LOG_PATH.open("a", encoding="utf-8") as file_obj:
+            file_obj.write(json.dumps(payload) + "\n")
     except Exception:
-        # Logging must never break main logic
+        # Logging must never break main logic.
         pass
-    # endregion
 
 
-try:
-    db = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="12345",
-        database="sg_ai",
-    )
-    cursor = db.cursor()
-    _write_debug_log(
-        hypothesis_id="H0",
-        message="db_connection_success",
-        data={"host": "localhost", "database": "sg_ai"},
-    )
-except mysql.connector.Error as err:
-    _write_debug_log(
-        hypothesis_id="H0",
-        message="db_connection_error",
-        data={"error": str(err)},
-    )
-    raise
+def _db_config():
+    return {
+        "host": os.getenv("SG_AI_DB_HOST", "localhost"),
+        "user": os.getenv("SG_AI_DB_USER", "root"),
+        "password": os.getenv("SG_AI_DB_PASSWORD", "12345"),
+        "database": os.getenv("SG_AI_DB_NAME", "sg_ai"),
+    }
+
+
+def get_connection():
+    global _last_connection_error
+
+    try:
+        config = _db_config()
+        connection = mysql.connector.connect(**config)
+        _last_connection_error = None
+        _write_debug_log(
+            hypothesis_id="H0",
+            message="db_connection_success",
+            data={"host": config["host"], "database": config["database"]},
+        )
+        return connection
+    except mysql.connector.Error as err:
+        _last_connection_error = str(err)
+        _write_debug_log(
+            hypothesis_id="H0",
+            message="db_connection_error",
+            data={"error": _last_connection_error},
+        )
+        return None
+
+
+def get_database_status():
+    return _last_connection_error
 
 
 def add_candidate_to_db(name, email, resume_text):
-    sql = "INSERT INTO CANDIDATES(name, email, resume_text) VALUES (%s, %s, %s)"
-    val = (name, email, resume_text)
+    connection = get_connection()
+    if connection is None:
+        return False
+
+    cursor = connection.cursor()
+    sql = "INSERT INTO candidates(name, email, resume_text) VALUES (%s, %s, %s)"
+    values = (name, email, resume_text)
+
     _write_debug_log(
         hypothesis_id="H1",
         message="add_candidate_to_db called",
         data={"name": name, "email": email},
     )
+
     try:
-        cursor.execute(sql, val)
-        db.commit()
-        print(f"Candidate '{name}' added successfully.")
+        cursor.execute(sql, values)
+        connection.commit()
         _write_debug_log(
             hypothesis_id="H1",
             message="add_candidate_to_db committed",
             data={"rowcount": cursor.rowcount},
         )
+        return True
     except mysql.connector.Error as err:
         _write_debug_log(
             hypothesis_id="H1",
             message="add_candidate_to_db error",
             data={"error": str(err)},
         )
-        print(f"Error: {err}")
-
-
-def print_all_candidates():
-    cursor.execute("SELECT * FROM candidates")
-    candidates = cursor.fetchall()
-    for candidate in candidates:
-        _write_debug_log(
-            hypothesis_id="H2",
-            message="print_all_candidates row",
-            data={"id": candidate[0], "uploaded_at_type": str(type(candidate[4]))},
-        )
-        formatted_time = candidate[4].strftime("%d-%b-%Y %H:%M")
-        print(f"ID:{candidate[0]} | Name:{candidate[1]} | Uploaded: {formatted_time}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
 
 
 def add_job_to_db(title, company, description_text):
+    connection = get_connection()
+    if connection is None:
+        return False
+
+    cursor = connection.cursor()
     sql = "INSERT INTO jobs (title, company, description_text) VALUES (%s, %s, %s)"
-    val = (title, company, description_text)
+    values = (title, company, description_text)
+
     _write_debug_log(
         hypothesis_id="H3",
         message="add_job_to_db called",
         data={"title": title, "company": company},
     )
+
     try:
-        cursor.execute(sql, val)
-        db.commit()
-        print(f"Job '{title}' added successfully.")
+        cursor.execute(sql, values)
+        connection.commit()
         _write_debug_log(
             hypothesis_id="H3",
             message="add_job_to_db committed",
             data={"rowcount": cursor.rowcount},
         )
+        return True
     except mysql.connector.Error as err:
         _write_debug_log(
             hypothesis_id="H3",
             message="add_job_to_db error",
             data={"error": str(err)},
         )
-        print(f"Error: {err}")
-
-
-def print_all_jobs():
-    cursor.execute("SELECT * FROM jobs")
-    all_jobs = cursor.fetchall()
-
-    print("\n--- Current Job Openings ---")
-    for job in all_jobs:
-        # job[0]=id, job[1]=title, job[2]=company
-        print(f"ID: {job[0]} | Title: {job[1]} | Description: {job[2]}")
+        return False
+    finally:
+        cursor.close()
+        connection.close()
 
 
 def get_all_jobs():
-    try:
-        cursor.execute("SELECT id, title, company FROM jobs")
-        jobs = cursor.fetchall()
-        # Convert to list of dicts for easy template rendering
-        return [{"id": j[0], "title": j[1], "company": j[2]} for j in jobs]
-    except mysql.connector.Error as err:
-        print(f"Error fetching jobs: {err}")
+    connection = get_connection()
+    if connection is None:
         return []
 
-def get_job_by_id(job_id):
+    cursor = connection.cursor()
     try:
-        cursor.execute("SELECT title, description_text FROM jobs WHERE id = %s", (job_id,))
+        cursor.execute("SELECT id, title, company FROM jobs ORDER BY title ASC")
+        jobs = cursor.fetchall()
+        return [{"id": row[0], "title": row[1], "company": row[2]} for row in jobs]
+    except mysql.connector.Error as err:
+        _write_debug_log(
+            hypothesis_id="H5",
+            message="get_all_jobs error",
+            data={"error": str(err)},
+        )
+        return []
+    finally:
+        cursor.close()
+        connection.close()
+
+
+def get_job_by_id(job_id):
+    connection = get_connection()
+    if connection is None:
+        return None
+
+    cursor = connection.cursor()
+    try:
+        cursor.execute(
+            "SELECT title, description_text FROM jobs WHERE id = %s",
+            (job_id,),
+        )
         job = cursor.fetchone()
         if job:
             return {"title": job[0], "description_text": job[1]}
+        return None
     except mysql.connector.Error as err:
-        print(f"Error fetching job by ID: {err}")
-    return None
+        _write_debug_log(
+            hypothesis_id="H6",
+            message="get_job_by_id error",
+            data={"error": str(err), "job_id": job_id},
+        )
+        return None
+    finally:
+        cursor.close()
+        connection.close()

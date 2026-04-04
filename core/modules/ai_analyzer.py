@@ -48,8 +48,9 @@ _client_ready = False
 _client = None
 
 _MODELS = [
-    "gemini-2.5-flash",  # primary  (thinking disabled below)
-    "gemini-1.5-flash",  # fallback (stable GA)
+    "gemini-2.5-flash",       # primary  (thinking disabled)
+    "gemini-2.0-flash",       # fallback (stable, same quota pool)
+    "gemini-1.5-flash-8b",    # third fallback (lighter model, separate quota)
 ]
 
 
@@ -180,37 +181,76 @@ def _build_config(schema: dict, max_tokens: int):
     )
 
 
-def _call_gemini(prompt: str, schema: dict, max_tokens: int = 4096) -> str | None:
+def _call_gemini(
+    prompt: str,
+    schema: dict,
+    max_tokens: int = 4096,
+    max_retries: int = 4,
+) -> str | None:
     """
-    Call Gemini with schema enforcement. Tries each model in _MODELS order.
-    Returns raw response text, or None if all models fail.
+    Call Gemini with schema enforcement, automatic rate-limit retry,
+    and multi-model fallback.
+    Free tier = 5 req/min. On 429: parse retry-after, wait, retry.
+    After max_retries on one model, move to next model.
     """
+    import re, time as _time
+
     if not _client_ready:
         return None
 
-    config = _build_config(schema, max_tokens)
+    def build_cfg(model_name: str):
+        kwargs = dict(
+            temperature=0.0,
+            max_output_tokens=max_tokens,
+            response_mime_type="application/json",
+            response_schema=schema,
+        )
+        if "2.5" in model_name:
+            kwargs["thinking_config"] = genai_types.ThinkingConfig(thinking_budget=0)
+        return genai_types.GenerateContentConfig(**kwargs)
 
     for model in _MODELS:
-        try:
-            response = _client.models.generate_content(
-                model=model,
-                contents=[{"role": "user", "parts": [{"text": prompt}]}],
-                config=config,
-            )
+        config = build_cfg(model)
+        for attempt in range(max_retries):
+            try:
+                response = _client.models.generate_content(
+                    model=model,
+                    contents=[{"role": "user", "parts": [{"text": prompt}]}],
+                    config=config,
+                )
+                if _is_truncated(response):
+                    logger.warning("[%s] Truncated.", model)
+                text = _extract_text(response)
+                if text:
+                    return text
+                logger.warning("[%s] Empty response (attempt %d).", model, attempt+1)
+                break
 
-            if _is_truncated(response):
-                logger.warning("[%s] Truncated response — inputs may be too long.", model)
+            except Exception as exc:
+                err = str(exc)
+                if "429" in err or "RESOURCE_EXHAUSTED" in err:
+                    wait = 65
+                    m = re.search(r"retry in\s+([\d.]+)s", err, re.I)
+                    if not m:
+                        m = re.search(r"retryDelay.*?(\d+)s", err, re.I)
+                    if m:
+                        wait = int(float(m.group(1))) + 3
+                    if attempt < max_retries - 1:
+                        logger.warning("[%s] Rate limited. Waiting %ds (attempt %d/%d)...",
+                                       model, wait, attempt+2, max_retries)
+                        _time.sleep(wait)
+                        continue
+                    else:
+                        logger.warning("[%s] Rate limit persists after %d retries -> next model.", model, max_retries)
+                        break
+                elif "404" in err or "NOT_FOUND" in err:
+                    logger.warning("[%s] Model not found -> next model.", model)
+                    break
+                else:
+                    logger.warning("[%s] Failed: %s -> next model.", model, err[:120])
+                    break
 
-            text = _extract_text(response)
-            if text:
-                return text
-
-            logger.warning("[%s] Empty response — trying next model.", model)
-
-        except Exception as exc:
-            logger.warning("[%s] Failed: %s — trying next model.", model, exc)
-
-    logger.error("All Gemini models failed.")
+    logger.error("All Gemini models failed after retries.")
     return None
 
 

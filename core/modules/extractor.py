@@ -1,14 +1,19 @@
-import pypdf
 import json
 import time
+from pathlib import Path
 
-PDF_DEBUG_LOG_PATH = r"c:\Users\aksha\Desktop\SG_AI\debug-aedf66.log"
+import pypdf
+
+PDF_DEBUG_LOG_PATH = Path(__file__).resolve().parents[2] / "debug-aedf66.log"
+
+
+class PDFExtractionError(Exception):
+    pass
 
 
 def _write_debug_log(
     hypothesis_id: str, message: str, data: dict, run_id: str = "initial"
 ):
-    # region agent log
     try:
         payload = {
             "sessionId": "aedf66",
@@ -20,24 +25,26 @@ def _write_debug_log(
             "runId": run_id,
             "hypothesisId": hypothesis_id,
         }
-        with open(PDF_DEBUG_LOG_PATH, "a", encoding="utf-8") as f:
-            f.write(json.dumps(payload) + "\n")
+        with PDF_DEBUG_LOG_PATH.open("a", encoding="utf-8") as file_obj:
+            file_obj.write(json.dumps(payload) + "\n")
     except Exception:
-        # Logging must never break main logic
+        # Logging must never break main logic.
         pass
-    # endregion
 
 
-def extract_text_from_pdf(file_path):  # Function to extract text from a PDF file
+def extract_text_from_pdf(file_path):
     _write_debug_log(
         hypothesis_id="H4",
         message="extract_text_from_pdf called",
-        data={"file_path": file_path},
+        data={"file_path": str(file_path)},
     )
+
     text = ""
+    path = Path(file_path)
+
     try:
-        with open(file_path, "rb") as file:  # read as binary
-            reader = pypdf.PdfReader(file)
+        with path.open("rb") as file_obj:
+            reader = pypdf.PdfReader(file_obj)
 
             for page_index, page in enumerate(reader.pages):
                 page_text = page.extract_text()
@@ -50,7 +57,9 @@ def extract_text_from_pdf(file_path):  # Function to extract text from a PDF fil
                     text += page_text + "\n"
 
         if not text.strip():
-            print("No text found in the PDF.")
+            raise PDFExtractionError(
+                "No extractable text was found in the uploaded PDF."
+            )
 
         _write_debug_log(
             hypothesis_id="H4",
@@ -59,18 +68,30 @@ def extract_text_from_pdf(file_path):  # Function to extract text from a PDF fil
         )
         return text
 
-    except FileNotFoundError:
+    except FileNotFoundError as exc:
         _write_debug_log(
             hypothesis_id="H4",
             message="extract_text_from_pdf file_not_found",
-            data={"file_path": file_path},
+            data={"file_path": str(file_path)},
         )
-        return "Error: The file was not found at the specified path."
-
-    except Exception as e:
+        raise PDFExtractionError("The uploaded PDF could not be found.") from exc
+    except pypdf.errors.PyPdfError as exc:
+        _write_debug_log(
+            hypothesis_id="H4",
+            message="extract_text_from_pdf pdf_error",
+            data={"error": str(exc)},
+        )
+        raise PDFExtractionError(
+            "The uploaded file is not a readable PDF document."
+        ) from exc
+    except PDFExtractionError:
+        raise
+    except Exception as exc:
         _write_debug_log(
             hypothesis_id="H4",
             message="extract_text_from_pdf exception",
-            data={"error": str(e)},
+            data={"error": str(exc)},
         )
-        return f"Error processing PDF: {str(e)}"
+        raise PDFExtractionError(
+            "Something went wrong while processing the uploaded PDF."
+        ) from exc
